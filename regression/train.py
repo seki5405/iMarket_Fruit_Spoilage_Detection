@@ -30,7 +30,7 @@ def main(opt):
 
     hist = model.fit(train_ds, validation_data=val_ds, epochs=epochs)
 
-    plot_show(hist)
+    plot_show(base_model, hist)
 
     show_example(model, val_ds)
 
@@ -85,9 +85,9 @@ def get_model(base_model):
     return model
 
 
-def plot_show(history):
-  plt.plot(history["accuracy"], color ="blue", label = "accuracy")
-  plt.plot(history["loss"], color="red", label="loss")
+def plot_show(base_model, history):
+  plt.plot(history.history["accuracy"], color ="blue", label = "accuracy")
+  plt.plot(history.history["loss"], color="red", label="loss")
 
   plt.title(f"Curves of {base_model} based regression model") 
 #   plt.ylabel("Accuracy(0~1)")
