@@ -5,7 +5,8 @@ import tensorflow as tf
 from tensorflow.keras.applications import VGG16, MobileNetV2
 from keras.models import Sequential
 from keras.layers import *
-import matplotlib.pyplot as plt
+from keras.callbacks import EarlyStopping
+# import matplotlib.pyplot as plt
 
 def main(opt):
     print(opt)
@@ -28,11 +29,12 @@ def main(opt):
     model = get_model(base_model)
     print(model.summary())
 
-    hist = model.fit(train_ds, validation_data=val_ds, epochs=epochs)
+    es = EarlyStopping(monitor='val_loss', mode='min', patience=3, restore_best_weights=True, verbose=1)
+    hist = model.fit(train_ds, validation_data=val_ds, epochs=epochs, callbacks=[es])
 
-    plot_show(base_model, hist)
+    # plot_show(base_model, hist)
 
-    show_example(model, val_ds)
+    # show_example(model, val_ds)
 
     model.save('./model/'+save_name)
 
