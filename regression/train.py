@@ -101,7 +101,7 @@ def show_example(model, ds):
 
     for idx, img in enumerate(test_img[0]):
         plt.imshow(img)
-        title = "Pred : " + str(round(pred[idx][0], 2)) + "GT : " + str(test_lb[idx])
+        title = "Pred : " + str(round(pred[idx][0], 2)) + "GT : " + str(test_lb[0][idx])
         plt.title(title)
         plt.show()
 
