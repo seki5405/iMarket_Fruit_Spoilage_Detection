@@ -86,10 +86,9 @@ def get_model(base_model):
 
 
 def plot_show(base_model, history):
-  plt.plot(history.history["acc"], color ="blue", label = "accuracy")
   plt.plot(history.history["loss"], color="red", label="loss")
 
-  plt.title(f"Curves of {base_model} based regression model") 
+  plt.title(f"Loss Curves of {base_model} based regression model") 
 #   plt.ylabel("Accuracy(0~1)")
   plt.xlabel("Number of epochs")
   plt.legend()
