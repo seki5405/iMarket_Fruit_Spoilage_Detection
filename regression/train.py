@@ -86,7 +86,7 @@ def get_model(base_model):
 
 
 def plot_show(base_model, history):
-  plt.plot(history.history["accuracy"], color ="blue", label = "accuracy")
+  plt.plot(history.history["acc"], color ="blue", label = "accuracy")
   plt.plot(history.history["loss"], color="red", label="loss")
 
   plt.title(f"Curves of {base_model} based regression model") 
@@ -128,6 +128,5 @@ if __name__ == "__main__":
         sys.path.append(str(ROOT))  # add ROOT to PATH
     ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 
-    print(ROOT, "LOOK!!")
     opt = parse_opt()
     main(opt)
