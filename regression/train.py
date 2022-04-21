@@ -80,7 +80,7 @@ def get_model(base_model):
         layer.trainable = False
 
     opt = tf.keras.optimizers.Adam(lr=1e-5, decay=1e-3 / 200)
-    model.compile(loss="mean_absolute_percentage_error", optimizer=opt)
+    model.compile(loss="mean_squared_error", optimizer=opt)
 
     return model
 
