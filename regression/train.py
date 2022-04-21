@@ -13,7 +13,7 @@ def main(opt):
     epochs = opt.epochs
     batch_size = opt.batch_size
     optimizer = opt.optimizer
-    weight_name = opt.weight_name
+    save_name = opt.save_name
     dataset = opt.dataset
     imgsz = opt.imgsz
     split = opt.split
@@ -34,8 +34,7 @@ def main(opt):
 
     show_example(model, val_ds)
 
-
-
+    model.save('./model/'+save_name)
 
 
     
@@ -102,7 +101,7 @@ def show_example(model, ds):
 
     for idx, img in enumerate(test_img[0]):
         plt.imshow(img)
-        title = "Pred : " + round(pred[idx], 2) + "GT : " + test_lb[idx]
+        title = "Pred : " + round(pred[idx][0], 2) + "GT : " + test_lb[idx]
         plt.title(title)
         plt.show()
 
@@ -112,7 +111,7 @@ def parse_opt(known=False):
     parser.add_argument('--epochs', type=int, default=50, help='Training epochs')
     parser.add_argument('--batch-size', type=int, default=128, help='Training batch size')
     parser.add_argument('--optimizer', type=str, choices=['SGD', 'Adam', 'AdamW'], default='Adam', help='optimizer')
-    parser.add_argument('--weight-name', type=str, required=True, help='Name to save weights after training')
+    parser.add_argument('--save-name', type=str, required=True, help='Name to save weights after training')
     parser.add_argument('--dataset', type=str, required=True, help='Dataset path')
     parser.add_argument('--imgsz', '--img', '--img-size', type=int, default=224, help='Image size (width = height)')
     parser.add_argument('--split', type=float, default=0.2, help='train_valid split ratio')
