@@ -106,11 +106,11 @@ class Annotator:
                 p2 = p1[0] + w, p1[1] - h - 3 if outside else p1[1] + h + 3
                 cv2.rectangle(self.im, p1, p2, color, -1, cv2.LINE_AA)  # filled
                 cv2.putText(self.im,
-                            label+'test', (p1[0], p1[1] - 2 if outside else p1[1] + h + 2),
+                            label, (p1[0], p1[1] - 2 if outside else p1[1] + h + 2),
                             0,
                             self.lw / 3,
                             txt_color,
-                            thickness=tf/2,
+                            thickness=tf,
                             lineType=cv2.LINE_AA)
 
     def rectangle(self, xy, fill=None, outline=None, width=1):

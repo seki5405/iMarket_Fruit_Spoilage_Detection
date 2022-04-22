@@ -26,7 +26,7 @@ def main(opt):
     train_ds = get_dataset(dataset_path, 123, split, 'training', IMG_SIZE, BATCH_SIZE)
     val_ds = get_dataset(dataset_path, 123, split, 'validation', IMG_SIZE, BATCH_SIZE)
 
-    model = get_model(base_model)
+    model = get_model(base_model, imgsz)
     print(model.summary())
 
     es = EarlyStopping(monitor='val_loss', mode='min', patience=3, restore_best_weights=True, verbose=1)
@@ -60,8 +60,8 @@ def get_dataset(dataset_path, seed, split, subset, img_size, batch_size):
     
     return ds
 
-def get_model(base_model):
-    input_shape=(224,224,3)
+def get_model(base_model, img_size):
+    input_shape=(img_size,img_size,3)
     if base_model == 'vgg16':
         base = VGG16(weights='imagenet', input_shape=input_shape, include_top=False)
     elif base_model == 'mobilenet':
@@ -117,7 +117,7 @@ def parse_opt(known=False):
     parser.add_argument('--optimizer', type=str, choices=['SGD', 'Adam', 'AdamW'], default='Adam', help='optimizer')
     parser.add_argument('--save-name', type=str, required=True, help='Name to save weights after training')
     parser.add_argument('--dataset', type=str, required=True, help='Dataset path')
-    parser.add_argument('--imgsz', '--img', '--img-size', type=int, default=224, help='Image size (width = height)')
+    parser.add_argument('--imgsz', '--img', '--img-size', type=int, default=416, help='Image size (width = height)')
     parser.add_argument('--split', type=float, default=0.2, help='train_valid split ratio')
 
     opt = parser.parse_known_args()[0] if known else parser.parse_args()
