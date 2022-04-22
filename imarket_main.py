@@ -33,6 +33,11 @@ from pathlib import Path
 import torch
 import torch.backends.cudnn as cudnn
 
+import tensorflow as tf
+from tensorflow.keras.applications import VGG16, MobileNetV2
+from keras.models import Sequential
+from keras.layers import *
+
 FILE = Path(__file__).resolve()
 ROOT = FILE.parents[0]  # YOLOv5 root directory
 if str(ROOT) not in sys.path:
@@ -171,6 +176,15 @@ def run(
                         if save_crop:
                             crop_img = save_one_box(xyxy, imc, file=save_dir / 'crops' / names[c] / f'{p.stem}.jpg', BGR=True)
                             print("CROP IMG : \n", crop_img)
+                            print("CROP IMG SHAPE : ", crop_img.shape)
+
+                    crop_img = tf.image.resize(crop_img, (224,224))
+                    print("Resized : ", crop_img.shape)
+                    crop_img = crop_img.numpy().reshape(1,224,224,3)
+
+                    regression_model = get_regression_model('vgg16')
+                    regression_model.load_weights()
+                    regression_model.summary()
 
             # Stream results
             im0 = annotator.result()
@@ -208,6 +222,34 @@ def run(
         LOGGER.info(f"Results saved to {colorstr('bold', save_dir)}{s}")
     if update:
         strip_optimizer(weights)  # update model (to fix SourceChangeWarning)
+
+
+def get_regression_model(base_model):
+    input_shape=(224,224,3)
+    if base_model == 'vgg16':
+        base = VGG16(weights='imagenet', input_shape=input_shape, include_top=False)
+    elif base_model == 'mobilenet':
+        base = MobileNetV2(weights='imagenet', input_shape=input_shape, include_top=False)
+
+    model = Sequential()
+    model.add(base)
+    model.add(Flatten())
+    model.add(Dense(1596, activation='tanh'))
+    model.add(Dropout(0.3))
+    model.add(Dense(796, activation='tanh'))
+    model.add(Dropout(0.3))
+    model.add(Dense(256, activation='tanh'))
+    model.add(Dropout(0.3))
+    model.add(Dense(56, activation='tanh'))
+    model.add(Dropout(0.3))
+    model.add(Dense(1, activation='linear'))
+    for layer in model.layers[:-10]:
+        layer.trainable = False
+
+    # opt = tf.keras.optimizers.Adam(lr=1e-5, decay=1e-3 / 200)
+    # model.compile(loss="mean_squared_error", optimizer=opt)
+
+    return model
 
 
 def parse_opt():
