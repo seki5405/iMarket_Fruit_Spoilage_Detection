@@ -110,7 +110,7 @@ class Annotator:
                             0,
                             self.lw / 3,
                             txt_color,
-                            thickness=tf,
+                            thickness=tf/2,
                             lineType=cv2.LINE_AA)
 
     def rectangle(self, xy, fill=None, outline=None, width=1):

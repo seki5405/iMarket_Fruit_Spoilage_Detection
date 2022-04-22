@@ -175,9 +175,10 @@ def run(
                             f.write(('%g ' * len(line)).rstrip() % line + '\n')
 
                     crop_img = get_one_box(xyxy, imc, BGR=True)
+                    crop_img = tf.image.resize(crop_img, (224,224))
                     crop_img = crop_img.numpy().reshape(1,224,224,3)
-                    freshness = regression_model.predict(crop_img)
-                    print("Freshness : ", freshness[0][0])
+                    freshness = regression_model.predict(crop_img)[0][0]
+                    print("Freshness : ", freshness)
 
                     if save_img or save_crop or view_img:  # Add bbox to image
                         c = int(cls)  # integer class
@@ -185,8 +186,6 @@ def run(
                         annotator.box_label(xyxy, label, color=colors(c, True))
                         if save_crop:
                             crop_img = save_one_box(xyxy, imc, file=save_dir / 'crops' / names[c] / f'{p.stem}.jpg', BGR=True)
-                            print("CROP IMG : \n", crop_img)
-                            print("CROP IMG SHAPE : ", crop_img.shape)
 
             # Stream results
             im0 = annotator.result()
