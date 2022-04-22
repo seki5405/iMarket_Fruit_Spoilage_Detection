@@ -48,7 +48,7 @@ from models.common import DetectMultiBackend
 from utils.datasets import IMG_FORMATS, VID_FORMATS, LoadImages, LoadStreams
 from utils.general import (LOGGER, check_file, check_img_size, check_imshow, check_requirements, colorstr, cv2,
                            increment_path, non_max_suppression, print_args, scale_coords, strip_optimizer, xyxy2xywh)
-from utils.plots import Annotator, colors, save_one_box
+from utils.plots import Annotator, colors, save_one_box, get_one_box
 from utils.torch_utils import select_device, time_sync
 
 
@@ -81,6 +81,11 @@ def run(
         half=False,  # use FP16 half-precision inference
         dnn=False,  # use OpenCV DNN for ONNX inference
 ):
+
+    regression_model = get_regression_model('vgg16')
+    regression_model.load_weights('/content/drive/MyDrive/2022_Spring/CSCI5922/Project/Freshness/vgg16_10ep.h5')
+    regression_model.summary()
+
     source = str(source)
     save_img = not nosave and not source.endswith('.txt')  # save inference images
     is_file = Path(source).suffix[1:] in (IMG_FORMATS + VID_FORMATS)
@@ -169,22 +174,19 @@ def run(
                         with open(txt_path + '.txt', 'a') as f:
                             f.write(('%g ' * len(line)).rstrip() % line + '\n')
 
+                    crop_img = get_one_box(xyxy, imc, BGR=True)
+                    crop_img = crop_img.numpy().reshape(1,224,224,3)
+                    freshness = regression_model.predict(crop_img)
+                    print("Freshness : ", freshness[0][0])
+
                     if save_img or save_crop or view_img:  # Add bbox to image
                         c = int(cls)  # integer class
-                        label = None if hide_labels else (names[c] if hide_conf else f'{names[c]} {conf:.2f}')
+                        label = None if hide_labels else (names[c] if hide_conf else f'{names[c]} {freshness:.2f}')
                         annotator.box_label(xyxy, label, color=colors(c, True))
                         if save_crop:
                             crop_img = save_one_box(xyxy, imc, file=save_dir / 'crops' / names[c] / f'{p.stem}.jpg', BGR=True)
                             print("CROP IMG : \n", crop_img)
                             print("CROP IMG SHAPE : ", crop_img.shape)
-
-                    crop_img = tf.image.resize(crop_img, (224,224))
-                    print("Resized : ", crop_img.shape)
-                    crop_img = crop_img.numpy().reshape(1,224,224,3)
-
-                    regression_model = get_regression_model('vgg16')
-                    regression_model.load_weights()
-                    regression_model.summary()
 
             # Stream results
             im0 = annotator.result()
