@@ -36,8 +36,8 @@ def main(opt):
 
     # show_example(model, val_ds)
 
-    save_path = './model/'+save_name
-    print("Model Saving to : ", save_path)
+    save_path = './freshness_weights/'+save_name
+    print("Saving Model to : ", save_path)
     model.save(save_path)
 
 
