@@ -48,9 +48,9 @@ def get_dataset(dataset_path, seed, split, subset, img_size, batch_size):
                                                              subset=subset,
                                                              image_size=img_size,
                                                              batch_size=batch_size)
-    def preprocess(img, ans):
 
-        return img/255., float(ans)
+    def preprocess(img, ans):
+        return img/255., float(ans) * 9
 
     ds = ds.map(preprocess)
 
