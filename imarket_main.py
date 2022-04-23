@@ -75,7 +75,7 @@ def run(
         project=ROOT / 'runs/detect',  # save results to project/name
         name='exp',  # save results to project/name
         exist_ok=False,  # existing project/name ok, do not increment
-        line_thickness=3,  # bounding box thickness (pixels)
+        line_thickness=1,  # bounding box thickness (pixels)
         hide_labels=False,  # hide labels
         hide_conf=False,  # hide confidences
         half=False,  # use FP16 half-precision inference
@@ -83,7 +83,7 @@ def run(
         freshness_weights=''
 ):
 
-    regression_model = get_regression_model('vgg16')
+    regression_model = get_regression_model('vgg16', imgsz[0])
     regression_model.load_weights(freshness_weights)
     regression_model.summary()
 
@@ -176,8 +176,8 @@ def run(
                             f.write(('%g ' * len(line)).rstrip() % line + '\n')
 
                     crop_img = get_one_box(xyxy, imc, BGR=True)
-                    crop_img = tf.image.resize(crop_img, (224,224))
-                    crop_img = crop_img.numpy().reshape(1,224,224,3)
+                    crop_img = tf.image.resize(crop_img, (416,416))
+                    crop_img = crop_img.numpy().reshape(1,416,416,3)
                     freshness = regression_model.predict(crop_img)[0][0]
                     print("Freshness : ", freshness)
 
@@ -226,8 +226,8 @@ def run(
         strip_optimizer(weights)  # update model (to fix SourceChangeWarning)
 
 
-def get_regression_model(base_model):
-    input_shape=(224,224,3)
+def get_regression_model(base_model, img_size):
+    input_shape=(img_size,img_size,3)
     if base_model == 'vgg16':
         base = VGG16(weights='imagenet', input_shape=input_shape, include_top=False)
     elif base_model == 'mobilenet':
@@ -247,9 +247,6 @@ def get_regression_model(base_model):
     model.add(Dense(1, activation='linear'))
     for layer in model.layers[:-10]:
         layer.trainable = False
-
-    # opt = tf.keras.optimizers.Adam(lr=1e-5, decay=1e-3 / 200)
-    # model.compile(loss="mean_squared_error", optimizer=opt)
 
     return model
 
@@ -277,7 +274,7 @@ def parse_opt():
     parser.add_argument('--project', default=ROOT / 'runs/detect', help='save results to project/name')
     parser.add_argument('--name', default='exp', help='save results to project/name')
     parser.add_argument('--exist-ok', action='store_true', help='existing project/name ok, do not increment')
-    parser.add_argument('--line-thickness', default=3, type=int, help='bounding box thickness (pixels)')
+    parser.add_argument('--line-thickness', default=1, type=int, help='bounding box thickness (pixels)')
     parser.add_argument('--hide-labels', default=False, action='store_true', help='hide labels')
     parser.add_argument('--hide-conf', default=False, action='store_true', help='hide confidences')
     parser.add_argument('--half', action='store_true', help='use FP16 half-precision inference')

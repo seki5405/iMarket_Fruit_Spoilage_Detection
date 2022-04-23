@@ -1,12 +1,11 @@
-import argparse, sys, os
-from pathlib import Path
+import argparse
 
 import tensorflow as tf
 from tensorflow.keras.applications import VGG16, MobileNetV2
 from keras.models import Sequential
 from keras.layers import *
 from keras.callbacks import EarlyStopping
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 def main(opt):
     print(opt)
@@ -33,7 +32,6 @@ def main(opt):
     hist = model.fit(train_ds, validation_data=val_ds, epochs=epochs, callbacks=[es])
 
     # plot_show(base_model, hist)
-
     # show_example(model, val_ds)
 
     save_path = './freshness_weights/'+save_name
@@ -87,33 +85,32 @@ def get_model(base_model, img_size):
 
     return model
 
+def plot_show(base_model, history):
+  plt.plot(history.history["loss"], color="red", label="loss")
 
-# def plot_show(base_model, history):
-#   plt.plot(history.history["loss"], color="red", label="loss")
+  plt.title(f"Loss Curves of {base_model} based regression model") 
+#   plt.ylabel("Accuracy(0~1)")
+  plt.xlabel("Number of epochs")
+  plt.legend()
+  plt.show()
 
-#   plt.title(f"Loss Curves of {base_model} based regression model") 
-# #   plt.ylabel("Accuracy(0~1)")
-#   plt.xlabel("Number of epochs")
-#   plt.legend()
-#   plt.show()
+def show_example(model, ds):
+    test_img = [ds[0][:5] for ds in ds.take(1)]
+    test_lb = [ds[1][:5] for ds in ds.take(1)]
 
-# def show_example(model, ds):
-#     test_img = [ds[0][:5] for ds in ds.take(1)]
-#     test_lb = [ds[1][:5] for ds in ds.take(1)]
+    pred = model.predict(test_img)
 
-#     pred = model.predict(test_img)
-
-#     for idx, img in enumerate(test_img[0]):
-#         plt.imshow(img)
-#         title = "Pred : " + str(round(pred[idx][0], 2)) + "GT : " + str(test_lb[0][idx])
-#         plt.title(title)
-#         plt.show()
+    for idx, img in enumerate(test_img[0]):
+        plt.imshow(img)
+        title = "Pred : " + str(round(pred[idx][0], 2)) + "GT : " + str(test_lb[0][idx])
+        plt.title(title)
+        plt.show()
 
 def parse_opt(known=False):
     parser = argparse.ArgumentParser()
     parser.add_argument('--base-model', type=str, default='vgg16', help='Base model for the regression model')
     parser.add_argument('--epochs', type=int, default=50, help='Training epochs')
-    parser.add_argument('--batch-size', type=int, default=128, help='Training batch size')
+    parser.add_argument('--batch-size', type=int, default=32, help='Training batch size')
     parser.add_argument('--optimizer', type=str, choices=['SGD', 'Adam', 'AdamW'], default='Adam', help='optimizer')
     parser.add_argument('--save-name', type=str, required=True, help='Name to save weights after training')
     parser.add_argument('--dataset', type=str, required=True, help='Dataset path')
@@ -124,11 +121,6 @@ def parse_opt(known=False):
     return opt
 
 if __name__ == "__main__":
-    FILE = Path(__file__).resolve()
-    ROOT = FILE.parents[0]  # YOLOv5 root directory
-    if str(ROOT) not in sys.path:
-        sys.path.append(str(ROOT))  # add ROOT to PATH
-    ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 
     opt = parse_opt()
     main(opt)
