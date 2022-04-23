@@ -25,7 +25,7 @@ def main(opt):
     train_ds = get_dataset(dataset_path, 123, split, 'training', IMG_SIZE, BATCH_SIZE)
     val_ds = get_dataset(dataset_path, 123, split, 'validation', IMG_SIZE, BATCH_SIZE)
 
-    model = get_model(base_model, imgsz)
+    model = get_model(base_model, imgsz, 'relu')
     print(model.summary())
 
     es = EarlyStopping(monitor='val_loss', mode='min', patience=3, restore_best_weights=True, verbose=1)
@@ -49,6 +49,7 @@ def get_dataset(dataset_path, seed, split, subset, img_size, batch_size):
                                                              image_size=img_size,
                                                              batch_size=batch_size)
     def preprocess(img, ans):
+
         return img/255., float(ans)
 
     ds = ds.map(preprocess)
@@ -58,7 +59,7 @@ def get_dataset(dataset_path, seed, split, subset, img_size, batch_size):
     
     return ds
 
-def get_model(base_model, img_size):
+def get_model(base_model, img_size, act):
     input_shape=(img_size,img_size,3)
     if base_model == 'vgg16':
         base = VGG16(weights='imagenet', input_shape=input_shape, include_top=False)
@@ -68,13 +69,13 @@ def get_model(base_model, img_size):
     model = Sequential()
     model.add(base)
     model.add(Flatten())
-    model.add(Dense(1596, activation='tanh'))
+    model.add(Dense(1596, activation=act))
     model.add(Dropout(0.3))
-    model.add(Dense(796, activation='tanh'))
+    model.add(Dense(796, activation=act))
     model.add(Dropout(0.3))
-    model.add(Dense(256, activation='tanh'))
+    model.add(Dense(256, activation=act))
     model.add(Dropout(0.3))
-    model.add(Dense(56, activation='tanh'))
+    model.add(Dense(56, activation=act))
     model.add(Dropout(0.3))
     model.add(Dense(1, activation='linear'))
     for layer in model.layers[:-10]:
