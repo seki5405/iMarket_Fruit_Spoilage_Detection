@@ -83,9 +83,14 @@ def run(
         dnn=False,  # use OpenCV DNN for ONNX inference
         freshness_weights=''
 ):
-
-    regression_model = get_regression_model('vgg16', imgsz[0])
-    regression_model.load_weights(freshness_weights)
+    fruits = ["banana", "apple"]
+    freshness_models = {}
+    for f in fruits:
+        model = get_regression_model('vgg16', imgsz[0])
+        model.load_weights(os.path.join(freshness_weights, f+'.h5'))
+        freshness_models[f] = model
+    # banana_model = get_regression_model('vgg16', imgsz[0])
+    # banana_model.load_weights(freshness_weights+'/banana.h5')
 
     freshness_map = {0: "Disposal",
                      1: "Rotten",
@@ -93,6 +98,10 @@ def run(
                      3: "Fresh"}
 
     source = str(source)
+    if "https:" in source or "http:" in source:
+        os.system("wget "+source)
+        source = source.split('/')[-1]
+
     save_img = not nosave and not source.endswith('.txt')  # save inference images
     is_file = Path(source).suffix[1:] in (IMG_FORMATS + VID_FORMATS)
     is_url = source.lower().startswith(('rtsp://', 'rtmp://', 'http://', 'https://'))
@@ -180,15 +189,16 @@ def run(
                         with open(txt_path + '.txt', 'a') as f:
                             f.write(('%g ' * len(line)).rstrip() % line + '\n')
 
+                    fruit_name = names[int(cls)]
                     crop_img = get_one_box(xyxy, imc, BGR=True)
                     crop_img = tf.image.resize(crop_img, (416,416))
                     crop_img = crop_img.numpy().reshape(1,416,416,3)
-                    freshness = freshness_map[np.argmax(regression_model.predict(crop_img)[0])]
+                    freshness = freshness_map[np.argmax(freshness_models[fruit_name].predict(crop_img)[0])]
                     print("Freshness : ", freshness)
 
                     if save_img or save_crop or view_img:  # Add bbox to image
                         c = int(cls)  # integer class
-                        label = None if hide_labels else (names[c] if hide_conf else f'{names[c]} {freshness:.2f}')
+                        label = None if hide_labels else (names[c] if hide_conf else f'{names[c]} : {freshness}')
                         annotator.box_label(xyxy, label, color=colors(c, True))
                         if save_crop:
                             crop_img = save_one_box(xyxy, imc, file=save_dir / 'crops' / names[c] / f'{p.stem}.jpg', BGR=True)
@@ -249,7 +259,7 @@ def get_regression_model(base_model, img_size):
     model.add(Dropout(0.3))
     model.add(Dense(56, activation='tanh'))
     model.add(Dropout(0.3))
-    model.add(Dense(1, activation='linear'))
+    model.add(Dense(4, activation='softmax'))
     for layer in model.layers[:-10]:
         layer.trainable = False
 
