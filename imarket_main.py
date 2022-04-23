@@ -30,6 +30,7 @@ import os
 import sys
 from pathlib import Path
 
+import numpy as np
 import torch
 import torch.backends.cudnn as cudnn
 
@@ -53,7 +54,7 @@ from utils.torch_utils import select_device, time_sync
 
 
 @torch.no_grad()
-def run(
+def run( 
         weights=ROOT / 'yolov5s.pt',  # model.pt path(s)
         source=ROOT / 'data/images',  # file/dir/URL/glob, 0 for webcam
         data=ROOT / 'data/coco128.yaml',  # dataset.yaml path
@@ -85,7 +86,11 @@ def run(
 
     regression_model = get_regression_model('vgg16', imgsz[0])
     regression_model.load_weights(freshness_weights)
-    regression_model.summary()
+
+    freshness_map = {0: "Disposal",
+                     1: "Rotten",
+                     2: "Fine",
+                     3: "Fresh"}
 
     source = str(source)
     save_img = not nosave and not source.endswith('.txt')  # save inference images
@@ -178,7 +183,7 @@ def run(
                     crop_img = get_one_box(xyxy, imc, BGR=True)
                     crop_img = tf.image.resize(crop_img, (416,416))
                     crop_img = crop_img.numpy().reshape(1,416,416,3)
-                    freshness = regression_model.predict(crop_img)[0][0]
+                    freshness = freshness_map[np.argmax(regression_model.predict(crop_img)[0])]
                     print("Freshness : ", freshness)
 
                     if save_img or save_crop or view_img:  # Add bbox to image

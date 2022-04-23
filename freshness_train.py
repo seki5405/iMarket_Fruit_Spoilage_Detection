@@ -49,8 +49,11 @@ def get_dataset(dataset_path, seed, split, subset, img_size, batch_size):
                                                              image_size=img_size,
                                                              batch_size=batch_size)
 
+    # def preprocess(img, ans):
+    #     return img/255., float(ans) * 9
+    # For classification
     def preprocess(img, ans):
-        return img/255., float(ans) * 9
+        return img/255., int(ans)//3    
 
     ds = ds.map(preprocess)
 
@@ -77,12 +80,14 @@ def get_model(base_model, img_size, act):
     model.add(Dropout(0.3))
     model.add(Dense(56, activation=act))
     model.add(Dropout(0.3))
-    model.add(Dense(1, activation='linear'))
+    # model.add(Dense(1, activation='linear')) # Regression
+    model.add(Dense(4, activation='softmax')) # Classification
     for layer in model.layers[:-10]:
         layer.trainable = False
 
     opt = tf.keras.optimizers.Adam(lr=1e-5, decay=1e-3 / 200)
-    model.compile(loss="mean_squared_error", optimizer=opt)
+    # model.compile(loss="mean_squared_error", optimizer=opt) # Regression
+    model.compile(loss='sparse_categorical_crossentropy', optimizer=opt) # Classification
 
     return model
 
