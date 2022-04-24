@@ -261,7 +261,8 @@ def get_regression_model(base_model, img_size):
     model.add(Dropout(0.3))
     model.add(Dense(56, activation='tanh'))
     model.add(Dropout(0.3))
-    model.add(Dense(4, activation='softmax'))
+    model.add(Dense(1, activation='linear')) # Regression
+    # model.add(Dense(4, activation='softmax'))
     for layer in model.layers[:-10]:
         layer.trainable = False
 
