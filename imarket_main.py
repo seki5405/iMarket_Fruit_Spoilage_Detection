@@ -193,7 +193,9 @@ def run(
                     crop_img = get_one_box(xyxy, imc, BGR=True)
                     crop_img = tf.image.resize(crop_img, (416,416))
                     crop_img = crop_img.numpy().reshape(1,416,416,3)
-                    freshness = freshness_map[np.argmax(freshness_models[fruit_name].predict(crop_img)[0])]
+                    pred = freshness_models[fruit_name].predict(crop_img)[0]
+                    print(f"{fruit_name} : {pred}")
+                    freshness = freshness_map[np.argmax(pred)]
                     print("Freshness : ", freshness)
 
                     if save_img or save_crop or view_img:  # Add bbox to image
