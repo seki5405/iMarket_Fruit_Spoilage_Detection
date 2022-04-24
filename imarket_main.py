@@ -92,10 +92,10 @@ def run(
     # banana_model = get_regression_model('vgg16', imgsz[0])
     # banana_model.load_weights(freshness_weights+'/banana.h5')
 
-    freshness_map = {0: "Disposal",
-                     1: "Rotten",
-                     2: "Fine",
-                     3: "Fresh"}
+    # freshness_map = {0: "Disposal",
+    #                  1: "Rotten",
+    #                  2: "Fine",
+    #                  3: "Fresh"}
 
     source = str(source)
     if "https:" in source or "http:" in source:
@@ -193,9 +193,15 @@ def run(
                     crop_img = get_one_box(xyxy, imc, BGR=True)
                     crop_img = tf.image.resize(crop_img, (416,416))
                     crop_img = crop_img.numpy().reshape(1,416,416,3)
-                    pred = freshness_models[fruit_name].predict(crop_img)[0]
-                    print(f"{fruit_name} : {pred}")
-                    freshness = freshness_map[np.argmax(pred)]
+
+                    freshness = np.around(freshness_models[fruit_name].predict(crop_img)[0][0])
+                    freshness = freshness if freshness > 0 else 0
+
+                    # Classification
+                    # pred = freshness_models[fruit_name].predict(crop_img)[0]
+                    # print(f"{fruit_name} : {pred}")
+                    # freshness = freshness_map[np.argmax(pred)]
+
                     print("Freshness : ", freshness)
 
                     if save_img or save_crop or view_img:  # Add bbox to image
