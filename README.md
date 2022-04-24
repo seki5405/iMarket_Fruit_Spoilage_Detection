@@ -1,6 +1,6 @@
 # 제목 없음
 
-![Untitled](%E1%84%8C%E1%85%A6%E1%84%86%E1%85%A9%E1%86%A8%20%E1%84%8B%E1%85%A5%E1%86%B9%E1%84%8B%E1%85%B3%E1%86%B7%20a587e9ae02cb4b6f8b298244276c7d67/Untitled.png)
+![Untitled](README/Untitled.png)
 
 iMarket is a Fruit freshness evaluation tools based on YOLOv5 and Pretrained vision network. It’s forked from [Ultralytics](https://ultralytics.com/)’ YOLOv5 repository and based on this, added and customized for our purpose.
 
@@ -82,6 +82,6 @@ iMarket is a Fruit freshness evaluation tools based on YOLOv5 and Pretrained vis
     - Example of result
         
         
-        ![Untitled](%E1%84%8C%E1%85%A6%E1%84%86%E1%85%A9%E1%86%A8%20%E1%84%8B%E1%85%A5%E1%86%B9%E1%84%8B%E1%85%B3%E1%86%B7%20a587e9ae02cb4b6f8b298244276c7d67/Untitled%201.png)
+        ![Untitled](README/Untitled%201.png)
         
-        ![Untitled](%E1%84%8C%E1%85%A6%E1%84%86%E1%85%A9%E1%86%A8%20%E1%84%8B%E1%85%A5%E1%86%B9%E1%84%8B%E1%85%B3%E1%86%B7%20a587e9ae02cb4b6f8b298244276c7d67/Untitled%202.png)
+        ![Untitled](README/Untitled%202.png)
